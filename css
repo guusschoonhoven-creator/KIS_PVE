@@ -1,0 +1,40 @@
+/* === Visuele componenten dashboard === */
+
+.pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 0.5px solid transparent; }
+.pill-dot { width: 8px; height: 8px; border-radius: 50%; }
+.pill.ok { background: #dff7eb; color: var(--success); border-color: rgba(31,122,76,.2); }
+.pill.ok .pill-dot { background: var(--success); }
+.pill.warn { background: #fff3cd; color: var(--warning); border-color: rgba(152,108,0,.2); }
+.pill.warn .pill-dot { background: var(--warning); }
+.pill.alert { background: #fae5e5; color: var(--danger); border-color: rgba(160,53,53,.2); }
+.pill.alert .pill-dot { background: var(--danger); }
+
+.vitals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.vital-card { background: var(--surface-soft); border-radius: var(--radius-sm); padding: 14px; position: relative; overflow: hidden; border: 1px solid var(--line); }
+.vital-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+.vital-card.v-ok::before { background: var(--success); }
+.vital-card.v-warn::before { background: var(--warning); }
+.vital-card.v-alert::before { background: var(--danger); }
+.vital-card.v-neutral::before { background: var(--line); }
+.vital-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.vital-value { font-size: 24px; font-weight: 800; line-height: 1; }
+.vital-unit { font-size: 13px; color: var(--muted); margin-left: 2px; }
+.vital-range { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.vital-card.v-ok .vital-value { color: var(--success); }
+.vital-card.v-warn .vital-value { color: var(--warning); }
+.vital-card.v-alert .vital-value { color: var(--danger); }
+
+.timeline-bar { position: relative; height: 28px; background: var(--surface-soft); border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); }
+.tl-segment { position: absolute; top: 0; height: 100%; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.tl-segment.admitted { background: var(--primary-soft); color: var(--primary-dark); }
+.tl-segment.surgery { background: #fff3cd; color: var(--warning); }
+.tl-segment.recovery { background: #dff7eb; color: var(--success); }
+.tl-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+.risk-meter { display: grid; grid-template-columns: 1fr 1fr 1fr; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); }
+.risk-cell { padding: 10px 12px; text-align: center; font-size: 12px; font-weight: 700; opacity: .3; transition: opacity .2s; cursor: pointer; }
+.risk-cell.active { opacity: 1; }
+.risk-cell.low { background: #dff7eb; color: var(--success); }
+.risk-cell.medium { background: #fff3cd; color: var(--warning); }
+.risk-cell.high { background: #fae5e5; color: var(--danger); }
