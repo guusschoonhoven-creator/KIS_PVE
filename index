@@ -1,0 +1,25 @@
+<div class="card">
+  <div class="card-header">
+    <h3>Vitale waarden</h3>
+  </div>
+
+  <div class="vitals-grid">
+    <div class="vital-card v-alert">
+      <div class="vital-label">Bloeddruk</div>
+      <div class="vital-value">158<span class="vital-unit">mmHg</span></div>
+      <div class="vital-range">normaal: &lt;120</div>
+    </div>
+
+    <div class="vital-card v-warn">
+      <div class="vital-label">Saturatie</div>
+      <div class="vital-value">92<span class="vital-unit">%</span></div>
+      <div class="vital-range">aandacht nodig</div>
+    </div>
+
+    <div class="vital-card v-ok">
+      <div class="vital-label">Hartslag</div>
+      <div class="vital-value">78<span class="vital-unit">bpm</span></div>
+      <div class="vital-range">normaal</div>
+    </div>
+  </div>
+</div>
