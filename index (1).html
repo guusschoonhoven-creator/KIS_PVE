@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZorgPortaal — Patiëntdashboard</title>
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:           #eef3f8;
+  --surface:      #ffffff;
+  --surface-soft: #f7fafc;
+  --text:         #132033;
+  --muted:        #65758b;
+  --line:         #d9e2ec;
+  --primary:      #176b87;
+  --primary-dark: #0d4d61;
+  --primary-soft: #dff4f8;
+  --success:      #1f7a4c;
+  --success-bg:   #dff7eb;
+  --warning:      #986c00;
+  --warning-bg:   #fff3cd;
+  --danger:       #a03535;
+  --danger-bg:    #fae5e5;
+  --sidebar-bg:   #102b3c;
+  --shadow:       0 4px 24px rgba(20,45,70,.08);
+  --radius:       16px;
+  --radius-sm:    10px;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+}
+button, input, select, textarea { font: inherit; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+
+/* ── LAYOUT ── */
+.shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--sidebar-bg);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 6px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  margin-bottom: 8px;
+}
+.brand-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--primary);
+  display: grid; place-items: center;
+  font-weight: 800; font-size: 14px; letter-spacing: .04em;
+}
+.brand-name { font-weight: 700; font-size: 1rem; }
+.brand-sub  { font-size: .78rem; color: rgba(255,255,255,.55); }
+
+.nav-label {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  padding: 14px 10px 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: none; background: transparent;
+  color: rgba(255,255,255,.7);
+  width: 100%; text-align: left;
+  font-size: .9rem;
+  transition: background .15s, color .15s;
+}
+.nav-item:hover { background: rgba(255,255,255,.09); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.13); color: #fff; font-weight: 600; }
+.nav-icon { font-size: 16px; opacity: .8; flex-shrink: 0; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.user-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 10px;
+}
+.user-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--primary);
+  display: grid; place-items: center;
+  font-size: 13px; font-weight: 700;
+  flex-shrink: 0;
+}
+.user-name  { font-size: .88rem; font-weight: 600; }
+.user-role  { font-size: .75rem; color: rgba(255,255,255,.5); }
+
+/* ── MAIN CONTENT ── */
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* page sections */
+.page { display: none; padding: 28px 32px; flex: 1; }
+.page.active { display: block; }
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.topbar-left h1 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+}
+.topbar-left .sub {
+  color: var(--muted);
+  font-size: .9rem;
+  margin-top: 3px;
+}
+.patient-picker {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  font-size: .88rem;
+  color: var(--text);
+  min-width: 220px;
+}
+
+/* ── CARDS & GRID ── */
+.grid { display: grid; gap: 14px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* ── STATUS PILLS ── */
+.pill-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 11px; border-radius: 999px;
+  font-size: .78rem; font-weight: 700;
+  border: 1px solid transparent;
+}
+.pill-dot { width: 7px; height: 7px; border-radius: 50%; }
+.pill.ok    { background: var(--success-bg); color: var(--success);  border-color: rgba(31,122,76,.2); }
+.pill.ok    .pill-dot { background: var(--success); }
+.pill.warn  { background: var(--warning-bg); color: var(--warning);  border-color: rgba(152,108,0,.2); }
+.pill.warn  .pill-dot { background: var(--warning); }
+.pill.alert { background: var(--danger-bg);  color: var(--danger);   border-color: rgba(160,53,53,.2); }
+.pill.alert .pill-dot { background: var(--danger); }
+.pill.info  { background: var(--primary-soft); color: var(--primary-dark); border-color: rgba(23,107,135,.2); }
+.pill.info  .pill-dot { background: var(--primary); }
+
+/* ── VITALEN ── */
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+.vital-card {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px 11px;
+  position: relative; overflow: hidden;
+}
+.vital-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 3px;
+  border-radius: 3px 3px 0 0;
+}
+.vital-card.v-ok::before    { background: var(--success); }
+.vital-card.v-warn::before  { background: var(--warning); }
+.vital-card.v-alert::before { background: var(--danger); }
+.vital-card.v-neutral::before { background: var(--line); }
+.vital-lbl  { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 3px; }
+.vital-val  { font-size: 1.45rem; font-weight: 800; line-height: 1; }
+.vital-unit { font-size: .8rem; color: var(--muted); margin-left: 2px; }
+.vital-ref  { font-size: .7rem; color: var(--muted); margin-top: 4px; }
+.vital-card.v-ok    .vital-val { color: var(--success); }
+.vital-card.v-warn  .vital-val { color: var(--warning); }
+.vital-card.v-alert .vital-val { color: var(--danger); }
+
+/* ── RISICOMETER ── */
+.risk-meter {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  border-radius: var(--radius-sm); overflow: hidden;
+  border: 1px solid var(--line);
+}
+.risk-cell {
+  padding: 11px 10px; text-align: center;
+  font-size: .8rem; font-weight: 700;
+  opacity: .28; transition: opacity .2s;
+  cursor: pointer; user-select: none;
+}
+.risk-cell.active { opacity: 1; }
+.risk-cell.low    { background: var(--success-bg); color: var(--success); }
+.risk-cell.medium { background: var(--warning-bg); color: var(--warning); }
+.risk-cell.high   { background: var(--danger-bg);  color: var(--danger);  }
+.risk-cell .risk-icon { font-size: 1.2rem; display: block; margin-bottom: 2px; }
+
+/* ── TIJDLIJNBALK ── */
+.tl-wrap { margin-top: 4px; }
+.tl-bar {
+  position: relative; height: 26px;
+  background: var(--surface-soft);
+  border-radius: var(--radius-sm);
+  overflow: hidden; border: 1px solid var(--line);
+}
+.tl-seg {
+  position: absolute; top: 0; height: 100%;
+  display: flex; align-items: center;
+  padding: 0 9px; font-size: .72rem; font-weight: 700;
+  white-space: nowrap; overflow: hidden;
+}
+.tl-seg.opname   { background: var(--primary-soft); color: var(--primary-dark); }
+.tl-seg.operatie { background: var(--warning-bg);   color: var(--warning); }
+.tl-seg.herstel  { background: var(--success-bg);   color: var(--success); }
+.tl-labels {
+  display: flex; justify-content: space-between;
+  font-size: .7rem; color: var(--muted); margin-top: 4px;
+}
+
+/* ── MEDICATIEROOSTER ── */
+.med-grid {
+  display: grid;
+  grid-template-columns: 1fr repeat(4, 44px);
+  gap: 0; font-size: .84rem;
+}
+.med-gh {
+  font-size: .68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  padding: 0 6px 8px; text-align: center;
+}
+.med-gh:first-child { text-align: left; padding-left: 0; }
+.med-nm {
+  padding: 9px 0;
+  border-top: 1px solid var(--line);
+  font-weight: 600; display: flex; align-items: center; gap: 7px;
+}
+.med-nm .msub { font-size: .75rem; color: var(--muted); font-weight: 400; display: block; }
+.med-cell {
+  padding: 7px 6px;
+  border-top: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+}
+.dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem;
+}
+.dot-ok   { background: var(--success-bg); color: var(--success); font-weight: 800; border: 1px solid rgba(31,122,76,.25); }
+.dot-open { border: 1.5px solid var(--line); }
+.dot-skip { background: var(--danger-bg);  color: var(--danger);  font-weight: 800; border: 1px solid rgba(160,53,53,.25); }
+
+/* ── INFO LIST ── */
+.info-list { list-style: none; display: grid; gap: 0; }
+.info-list li {
+  display: grid; grid-template-columns: 140px 1fr;
+  gap: 8px; padding: 9px 0;
+  border-top: 1px solid var(--line); font-size: .88rem;
+}
+.info-list li:first-child { border-top: none; }
+.info-list .lbl { color: var(--muted); font-weight: 700; }
+
+/* ── NOTITIES / BERICHTEN ── */
+.note-card {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px; font-size: .88rem;
+}
+.note-card + .note-card { margin-top: 8px; }
+.note-meta {
+  display: flex; justify-content: space-between;
+  font-size: .76rem; color: var(--muted); margin-bottom: 6px;
+}
+.note-author { font-weight: 700; color: var(--text); }
+
+/* ── ACTIE-KNOPPEN ── */
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.btn {
+  border: none; border-radius: var(--radius-sm);
+  padding: 9px 16px; font-weight: 700; font-size: .84rem;
+  transition: opacity .15s, transform .1s;
+}
+.btn:hover  { opacity: .88; }
+.btn:active { transform: scale(.97); }
+.btn-primary   { background: var(--primary);  color: #fff; }
+.btn-secondary { background: var(--primary-soft); color: var(--primary-dark); }
+.btn-danger    { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(160,53,53,.2); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; right: 22px; bottom: 22px; z-index: 100;
+  background: var(--sidebar-bg); color: #fff;
+  border-radius: var(--radius-sm); padding: 12px 18px;
+  font-size: .88rem; font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  transform: translateY(20px); opacity: 0;
+  transition: transform .25s, opacity .25s; pointer-events: none;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── LEGE STAAT ── */
+.empty-state {
+  text-align: center; padding: 48px 24px; color: var(--muted);
+}
+.empty-state .icon { font-size: 2.2rem; margin-bottom: 12px; }
+.empty-state p { font-size: .92rem; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: relative; height: auto; flex-direction: row; flex-wrap: wrap; padding: 16px; }
+  .sidebar-brand { border-bottom: none; padding-bottom: 0; }
+  .sidebar-footer { display: none; }
+  .nav-label { display: none; }
+  .nav-item { padding: 7px 10px; }
+  .page { padding: 16px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .topbar { flex-direction: column; }
+  .patient-picker { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">ZP</div>
+      <div>
+        <div class="brand-name">ZorgPortaal</div>
+        <div class="brand-sub">Klinisch dashboard</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Patiëntbeheer</div>
+    <button class="nav-item active" onclick="nav('overzicht', this)">
+      <span class="nav-icon">⬛</span> Overzicht
+    </button>
+    <button class="nav-item" onclick="nav('vitalen', this)">
+      <span class="nav-icon">❤️</span> Vitalen
+    </button>
+    <button class="nav-item" onclick="nav('medicatie', this)">
+      <span class="nav-icon">💊</span> Medicatie
+    </button>
+    <button class="nav-item" onclick="nav('notities', this)">
+      <span class="nav-icon">📋</span> Notities
+    </button>
+
+    <div class="nav-label">Zorgteam</div>
+    <button class="nav-item" onclick="nav('berichten', this)">
+      <span class="nav-icon">✉️</span> Berichten
+    </button>
+    <button class="nav-item" onclick="nav('planning', this)">
+      <span class="nav-icon">📅</span> Planning
+    </button>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar">MV</div>
+        <div>
+          <div class="user-name">M. van der Berg</div>
+          <div class="user-role">Verpleegkundige</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main">
+
+    <!-- ── OVERZICHT ── -->
+    <section class="page active" id="page-overzicht">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>Patiëntoverzicht</h1>
+          <div class="sub">Vrijdag 12 juni 2026 · Afd. Interne Geneeskunde</div>
+        </div>
+        <select class="patient-picker" onchange="switchPatient(this.value)">
+          <option value="a">J. de Vries — Kamer 14A</option>
+          <option value="b">A. Bakker — Kamer 8B</option>
+          <option value="c">P. Smit — Kamer 22C</option>
+        </select>
+      </div>
+
+      <!-- Statusrij -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Patiëntstatus</div>
+        <div class="pill-row">
+          <span class="pill ok"><span class="pill-dot"></span>Hemodynamisch stabiel</span>
+          <span class="pill alert"><span class="pill-dot"></span>Allergie: penicilline</span>
+          <span class="pill warn"><span class="pill-dot"></span>Verhoogde bloeddruk</span>
+          <span class="pill info"><span class="pill-dot"></span>In observatie</span>
+        </div>
+      </div>
+
+      <!-- Twee kolommen: info + risico & tijdlijn -->
+      <div class="grid grid-2" style="margin-bottom:14px">
+
+        <div class="card">
+          <div class="card-title">Patiëntgegevens</div>
+          <ul class="info-list">
+            <li><span class="lbl">Naam</span><span>Jan de Vries</span></li>
+            <li><span class="lbl">Geboortedatum</span><span>14 maart 1958 (68 jr)</span></li>
+            <li><span class="lbl">BSN</span><span>•••• 4821</span></li>
+            <li><span class="lbl">Opnamedatum</span><span>3 juni 2026</span></li>
+            <li><span class="lbl">Diagnose</span><span>Hypertensieve crisis</span></li>
+            <li><span class="lbl">Behandelend arts</span><span>Dr. A. Koster</span></li>
+            <li><span class="lbl">Contactpersoon</span><span>M. de Vries (partner)</span></li>
+          </ul>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="card-title">Risicobeoordeling</div>
+            <div class="risk-meter">
+              <div class="risk-cell low" onclick="setRisk('low')">
+                <span class="risk-icon">✔</span>Laag
+              </div>
+              <div class="risk-cell medium active" onclick="setRisk('medium')">
+                <span class="risk-icon">⚠</span>Matig
+              </div>
+              <div class="risk-cell high" onclick="setRisk('high')">
+                <span class="risk-icon">!</span>Hoog
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Opnameverloop</div>
+            <div class="tl-wrap">
+              <div class="tl-bar">
+                <div class="tl-seg opname"   style="left:0%;   width:32%">Opname</div>
+                <div class="tl-seg operatie" style="left:32%;  width:18%">Onderzoek</div>
+                <div class="tl-seg herstel"  style="left:50%;  width:50%">Behandeling</div>
+              </div>
+              <div class="tl-labels">
+                <span>3 jun</span><span>6 jun</span><span>8 jun</span><span>12 jun</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vitalen compact -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Laatste vitalen — 08:15</div>
+        <div class="vitals-grid">
+          <div class="vital-card v-alert">
+            <div class="vital-lbl">Bloeddruk</div>
+            <div class="vital-val">158<span class="vital-unit">mmHg</span></div>
+            <div class="vital-ref">normaal &lt;120</div>
+          </div>
+          <div class="vital-card v-ok">
+            <div class="vital-lbl">Hartslag</div>
+            <div class="vital-val">74<span class="vital-unit">bpm</span></div>
+            <div class="vital-ref">normaal 60–100</div>
+          </div>
+          <div class="vital-card v-ok">
+            <div class="vital-lbl">Saturatie</div>
+            <div class="vital-val">97<span class="vital-unit">%</span></div>
+            <div class="vital-ref">normaal ≥95</div>
+          </div>
+          <div class="vital-card v-warn">
+            <div class="vital-lbl">Temperatuur</div>
+            <div class="vital-val">38.1<span class="vital-unit">°C</span></div>
+            <div class="vital-ref">normaal 36.5–37.5</div>
+          </div>
+          <div class="vital-card v-neutral">
+            <div class="vital-lbl">Gewicht</div>
+            <div class="vital-val">86<span class="vital-unit">kg</span></div>
+            <div class="vital-ref">geen afwijking</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Snelle acties -->
+      <div class="card">
+        <div class="card-title">Acties</div>
+        <div class="btn-row">
+          <button class="btn btn-primary"   onclick="toast('Vitalen opgeslagen ✓')">Vitalen registreren</button>
+          <button class="btn btn-secondary" onclick="toast('Notitie aangemaakt ✓')">Notitie toevoegen</button>
+          <button class="btn btn-secondary" onclick="toast('Arts genotificeerd ✓')">Arts waarschuwen</button>
+          <button class="btn btn-danger"    onclick="toast('Alarm verzonden ✓')">Spoedmelding</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── VITALEN ── -->
+    <section class="page" id="page-vitalen">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>Vitale functies</h1>
+          <div class="sub">J. de Vries · live metingen</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Huidige waarden</div>
+        <div class="vitals-grid">
+          <div class="vital-card v-alert">
+            <div class="vital-lbl">Bloeddruk syst.</div>
+            <div class="vital-val">158<span class="vital-unit">mmHg</span></div>
+            <div class="vital-ref">normaal &lt;120</div>
+          </div>
+          <div class="vital-card v-warn">
+            <div class="vital-lbl">Bloeddruk diast.</div>
+            <div class="vital-val">96<span class="vital-unit">mmHg</span></div>
+            <div class="vital-ref">normaal &lt;80</div>
+          </div>
+          <div class="vital-card v-ok">
+            <div class="vital-lbl">Hartslag</div>
+            <div class="vital-val">74<span class="vital-unit">bpm</span></div>
+            <div class="vital-ref">normaal 60–100</div>
+          </div>
+          <div class="vital-card v-ok">
+            <div class="vital-lbl">Saturatie</div>
+            <div class="vital-val">97<span class="vital-unit">%</span></div>
+            <div class="vital-ref">normaal ≥95</div>
+          </div>
+          <div class="vital-card v-warn">
+            <div class="vital-lbl">Temperatuur</div>
+            <div class="vital-val">38.1<span class="vital-unit">°C</span></div>
+            <div class="vital-ref">normaal 36.5–37.5</div>
+          </div>
+          <div class="vital-card v-ok">
+            <div class="vital-lbl">Ademhaling</div>
+            <div class="vital-val">16<span class="vital-unit">/min</span></div>
+            <div class="vital-ref">normaal 12–20</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Meethistorie vandaag</div>
+        <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">Tijdstip</th>
+              <th style="text-align:center;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">RR</th>
+              <th style="text-align:center;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">HR</th>
+              <th style="text-align:center;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">SpO₂</th>
+              <th style="text-align:center;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">Temp.</th>
+            </tr>
+          </thead>
+          <tbody id="vitals-table">
+            <tr><td style="padding:9px 6px;border-bottom:1px solid var(--line)">08:15</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line);color:var(--danger);font-weight:700">158/96</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line)">74</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line)">97%</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line);color:var(--warning);font-weight:700">38.1°C</td></tr>
+            <tr><td style="padding:9px 6px;border-bottom:1px solid var(--line)">06:00</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line);color:var(--danger);font-weight:700">162/98</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line)">78</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line)">96%</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line);color:var(--warning);font-weight:700">38.3°C</td></tr>
+            <tr><td style="padding:9px 6px;border-bottom:1px solid var(--line)">00:00</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line);color:var(--warning);font-weight:700">148/90</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line)">72</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line)">97%</td><td style="text-align:center;padding:9px 6px;border-bottom:1px solid var(--line)">37.8°C</td></tr>
+            <tr><td style="padding:9px 6px">18:00</td><td style="text-align:center;padding:9px 6px;color:var(--warning);font-weight:700">145/88</td><td style="text-align:center;padding:9px 6px">70</td><td style="text-align:center;padding:9px 6px">98%</td><td style="text-align:center;padding:9px 6px">37.6°C</td></tr>
+          </tbody>
+        </table>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="toast('Meting toegevoegd ✓')">Nieuwe meting invoeren</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── MEDICATIE ── -->
+    <section class="page" id="page-medicatie">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>Medicatie</h1>
+          <div class="sub">J. de Vries · toedieningsrooster vandaag</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Toedieningsrooster — 12 jun 2026</div>
+        <div class="med-grid">
+          <div class="med-gh">Medicijn</div>
+          <div class="med-gh">08:00</div>
+          <div class="med-gh">12:00</div>
+          <div class="med-gh">18:00</div>
+          <div class="med-gh">22:00</div>
+
+          <div class="med-nm">
+            <span>
+              Amlodipine
+              <span class="msub">5 mg — bij hypertensie</span>
+            </span>
+          </div>
+          <div class="med-cell"><div class="dot dot-ok">✓</div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+
+          <div class="med-nm">
+            <span>
+              Lisinopril
+              <span class="msub">10 mg — bij hypertensie</span>
+            </span>
+          </div>
+          <div class="med-cell"><div class="dot dot-skip">✕</div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+
+          <div class="med-nm">
+            <span>
+              Paracetamol
+              <span class="msub">1000 mg — bij koorts</span>
+            </span>
+          </div>
+          <div class="med-cell"><div class="dot dot-ok">✓</div></div>
+          <div class="med-cell"><div class="dot dot-ok">✓</div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+
+          <div class="med-nm">
+            <span>
+              Metoprolol
+              <span class="msub">25 mg — bij hartritmestoornis</span>
+            </span>
+          </div>
+          <div class="med-cell"><div class="dot dot-ok">✓</div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+          <div class="med-cell"><div class="dot dot-ok">✓</div></div>
+          <div class="med-cell"><div class="dot dot-open"></div></div>
+        </div>
+
+        <div style="display:flex;gap:18px;margin-top:14px;font-size:.76rem;color:var(--muted);align-items:center;flex-wrap:wrap">
+          <span><span class="dot dot-ok" style="display:inline-flex;width:18px;height:18px;font-size:.65rem;margin-right:5px;vertical-align:middle">✓</span>Gegeven</span>
+          <span><span class="dot dot-open" style="display:inline-block;width:18px;height:18px;margin-right:5px;vertical-align:middle;border-radius:50%;border:1.5px solid var(--line)"></span>Gepland</span>
+          <span><span class="dot dot-skip" style="display:inline-flex;width:18px;height:18px;font-size:.65rem;margin-right:5px;vertical-align:middle">✕</span>Gemist / geweigerd</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Bekende allergieën</div>
+        <div class="pill-row">
+          <span class="pill alert"><span class="pill-dot"></span>Penicilline — anafylaxie</span>
+          <span class="pill warn"><span class="pill-dot"></span>NSAID's — maagklachten</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="toast('Toediening geregistreerd ✓')">Toediening registreren</button>
+          <button class="btn btn-secondary" onclick="toast('Allergie toegevoegd ✓')">Allergie toevoegen</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── NOTITIES ── -->
+    <section class="page" id="page-notities">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>Klinische notities</h1>
+          <div class="sub">J. de Vries · dossier</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Nieuwe notitie</div>
+        <textarea id="notitie-input" style="width:100%;border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;font-size:.88rem;background:var(--surface-soft);color:var(--text);resize:vertical;min-height:90px" placeholder="Beschrijf observaties, interventies of bijzonderheden…"></textarea>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="addNotitie()">Notitie opslaan</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('notitie-input').value=''">Wissen</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Eerdere notities</div>
+        <div id="notities-list">
+          <div class="note-card">
+            <div class="note-meta"><span class="note-author">Dr. A. Koster</span><span>12 jun · 07:45</span></div>
+            <p>Patiënt heeft goed geslapen. Bloeddruk nog verhoogd maar dalende trend zichtbaar. Lisinopril-dosis geëvalueerd — patient weigerde ochtendmedicatie. Observatie voortgezet.</p>
+          </div>
+          <div class="note-card">
+            <div class="note-meta"><span class="note-author">M. van der Berg</span><span>11 jun · 22:10</span></div>
+            <p>Avondronde: patiënt rustig, lichte hoofdpijn gemeld. Paracetamol toegediend. Saturatie stabiel op 97%. Partner bezocht tot 21:00.</p>
+          </div>
+          <div class="note-card">
+            <div class="note-meta"><span class="note-author">Dr. A. Koster</span><span>10 jun · 14:20</span></div>
+            <p>ECG uitgevoerd — geen ritme­stoornissen. Echocardiografie gepland voor 13 juni. Bloedwaarden labresultaten nog verwacht.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── BERICHTEN ── -->
+    <section class="page" id="page-berichten">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>Berichten</h1>
+          <div class="sub">Intern overleg zorgteam</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Teamberichten — J. de Vries</div>
+        <div class="note-card">
+          <div class="note-meta"><span class="note-author">Dr. A. Koster</span><span>vandaag · 08:00</span></div>
+          <p>Let op: Lisinopril-weigering bijhouden. Als patient de avonddosis ook weigert, bel me dan direct. We overwegen IV-alternatief.</p>
+        </div>
+        <div class="note-card">
+          <div class="note-meta"><span class="note-author">Diëtist L. Houten</span><span>gisteren · 15:30</span></div>
+          <p>Natriumbeperkt dieet ingezet. Maaltijdblad bijgehouden — patiënt eet redelijk. Vochtinname monitoren.</p>
+        </div>
+        <div class="note-card">
+          <div class="note-meta"><span class="note-author">Fysiotherapeut R. Jansen</span><span>gisteren · 11:00</span></div>
+          <p>Eerste mobilisatie succesvol. Patiënt loopt met begeleiding naar het toilet. Geen duizeligheid gerapporteerd.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="toast('Bericht verzonden ✓')">Bericht sturen</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PLANNING ── -->
+    <section class="page" id="page-planning">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>Planning</h1>
+          <div class="sub">Komende afspraken en onderzoeken</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Agenda — J. de Vries</div>
+        <table style="width:100%;border-collapse:collapse;font-size:.88rem">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">Datum</th>
+              <th style="text-align:left;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">Tijd</th>
+              <th style="text-align:left;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">Afspraak</th>
+              <th style="text-align:left;padding:8px 6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">13 jun</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">09:00</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">Echocardiografie</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)"><span class="pill info" style="font-size:.72rem"><span class="pill-dot"></span>Gepland</span></td>
+            </tr>
+            <tr>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">13 jun</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">14:00</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">Bloedafname labwaarden</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)"><span class="pill info" style="font-size:.72rem"><span class="pill-dot"></span>Gepland</span></td>
+            </tr>
+            <tr>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">14 jun</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">10:30</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">Visitegesprek Dr. Koster</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)"><span class="pill info" style="font-size:.72rem"><span class="pill-dot"></span>Gepland</span></td>
+            </tr>
+            <tr>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">15 jun</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">11:00</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)">Evaluatie ontslagmogelijkheid</td>
+              <td style="padding:10px 6px;border-bottom:1px solid var(--line)"><span class="pill warn" style="font-size:.72rem"><span class="pill-dot"></span>Voorlopig</span></td>
+            </tr>
+            <tr>
+              <td style="padding:10px 6px">12 jun</td>
+              <td style="padding:10px 6px">08:15</td>
+              <td style="padding:10px 6px">Vitaalcontrole ochtend</td>
+              <td style="padding:10px 6px"><span class="pill ok" style="font-size:.72rem"><span class="pill-dot"></span>Voltooid</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="toast('Afspraak aangemaakt ✓')">Afspraak toevoegen</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Toast notificatie -->
+<div id="toast"></div>
+
+<script>
+/* ── NAVIGATIE ── */
+function nav(pageId, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* ── RISICOMETER ── */
+function setRisk(level) {
+  document.querySelectorAll('.risk-cell').forEach(c => c.classList.remove('active'));
+  const cell = document.querySelector('.risk-cell.' + level);
+  if (cell) {
+    cell.classList.add('active');
+    toast('Risico ingesteld op: ' + level === 'low' ? 'laag' : level === 'medium' ? 'matig' : 'hoog');
+  }
+}
+
+/* ── PATIËNT WISSELEN ── */
+const patients = {
+  a: { naam: 'J. de Vries', kamer: 'Kamer 14A', diagnose: 'Hypertensieve crisis', risico: 'medium' },
+  b: { naam: 'A. Bakker',   kamer: 'Kamer 8B',  diagnose: 'Pneumonie',            risico: 'low' },
+  c: { naam: 'P. Smit',     kamer: 'Kamer 22C', diagnose: 'Hartfalen',            risico: 'high' },
+};
+function switchPatient(key) {
+  const p = patients[key];
+  if (!p) return;
+  toast('Patiënt geladen: ' + p.naam);
+  setRisk(p.risico);
+}
+
+/* ── NOTITIE TOEVOEGEN ── */
+function addNotitie() {
+  const val = document.getElementById('notitie-input').value.trim();
+  if (!val) return;
+  const now = new Date();
+  const tijd = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  const div = document.createElement('div');
+  div.className = 'note-card';
+  div.innerHTML = `<div class="note-meta"><span class="note-author">M. van der Berg</span><span>vandaag · ${tijd}</span></div><p>${val}</p>`;
+  const list = document.getElementById('notities-list');
+  list.insertBefore(div, list.firstChild);
+  document.getElementById('notitie-input').value = '';
+  toast('Notitie opgeslagen ✓');
+}
+
+/* ── TOAST ── */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
