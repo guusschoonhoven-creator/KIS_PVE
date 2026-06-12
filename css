@@ -1,40 +1,299 @@
-/* === Visuele componenten dashboard === */
+/* === Visuele dashboardcomponenten === */
 
-.pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
-.pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 0.5px solid transparent; }
-.pill-dot { width: 8px; height: 8px; border-radius: 50%; }
-.pill.ok { background: #dff7eb; color: var(--success); border-color: rgba(31,122,76,.2); }
-.pill.ok .pill-dot { background: var(--success); }
-.pill.warn { background: #fff3cd; color: var(--warning); border-color: rgba(152,108,0,.2); }
-.pill.warn .pill-dot { background: var(--warning); }
-.pill.alert { background: #fae5e5; color: var(--danger); border-color: rgba(160,53,53,.2); }
-.pill.alert .pill-dot { background: var(--danger); }
+/* Statuspills */
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
-.vitals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-.vital-card { background: var(--surface-soft); border-radius: var(--radius-sm); padding: 14px; position: relative; overflow: hidden; border: 1px solid var(--line); }
-.vital-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
-.vital-card.v-ok::before { background: var(--success); }
-.vital-card.v-warn::before { background: var(--warning); }
-.vital-card.v-alert::before { background: var(--danger); }
-.vital-card.v-neutral::before { background: var(--line); }
-.vital-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-.vital-value { font-size: 24px; font-weight: 800; line-height: 1; }
-.vital-unit { font-size: 13px; color: var(--muted); margin-left: 2px; }
-.vital-range { font-size: 11px; color: var(--muted); margin-top: 5px; }
-.vital-card.v-ok .vital-value { color: var(--success); }
-.vital-card.v-warn .vital-value { color: var(--warning); }
-.vital-card.v-alert .vital-value { color: var(--danger); }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 0.5px solid transparent;
+}
 
-.timeline-bar { position: relative; height: 28px; background: var(--surface-soft); border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); }
-.tl-segment { position: absolute; top: 0; height: 100%; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; }
-.tl-segment.admitted { background: var(--primary-soft); color: var(--primary-dark); }
-.tl-segment.surgery { background: #fff3cd; color: var(--warning); }
-.tl-segment.recovery { background: #dff7eb; color: var(--success); }
-.tl-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 4px; }
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
 
-.risk-meter { display: grid; grid-template-columns: 1fr 1fr 1fr; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); }
-.risk-cell { padding: 10px 12px; text-align: center; font-size: 12px; font-weight: 700; opacity: .3; transition: opacity .2s; cursor: pointer; }
-.risk-cell.active { opacity: 1; }
-.risk-cell.low { background: #dff7eb; color: var(--success); }
-.risk-cell.medium { background: #fff3cd; color: var(--warning); }
-.risk-cell.high { background: #fae5e5; color: var(--danger); }
+.pill.ok {
+  background: #dff7eb;
+  color: var(--success, #1f7a4c);
+  border-color: rgba(31, 122, 76, .2);
+}
+
+.pill.ok .pill-dot {
+  background: var(--success, #1f7a4c);
+}
+
+.pill.warn {
+  background: #fff3cd;
+  color: var(--warning, #986c00);
+  border-color: rgba(152, 108, 0, .2);
+}
+
+.pill.warn .pill-dot {
+  background: var(--warning, #986c00);
+}
+
+.pill.alert {
+  background: #fae5e5;
+  color: var(--danger, #a03535);
+  border-color: rgba(160, 53, 53, .2);
+}
+
+.pill.alert .pill-dot {
+  background: var(--danger, #a03535);
+}
+
+/* Vitalenkaarten */
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.vital-card {
+  background: var(--surface-soft, #f7f9fb);
+  border-radius: var(--radius-sm, 10px);
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line, #dde3ea);
+}
+
+.vital-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+}
+
+.vital-card.v-ok::before {
+  background: var(--success, #1f7a4c);
+}
+
+.vital-card.v-warn::before {
+  background: var(--warning, #986c00);
+}
+
+.vital-card.v-alert::before {
+  background: var(--danger, #a03535);
+}
+
+.vital-card.v-neutral::before {
+  background: var(--line, #dde3ea);
+}
+
+.vital-label {
+  font-size: 11px;
+  color: var(--muted, #667085);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+
+.vital-value {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.vital-unit {
+  font-size: 13px;
+  color: var(--muted, #667085);
+  margin-left: 2px;
+}
+
+.vital-range {
+  font-size: 11px;
+  color: var(--muted, #667085);
+  margin-top: 5px;
+}
+
+.vital-card.v-ok .vital-value {
+  color: var(--success, #1f7a4c);
+}
+
+.vital-card.v-warn .vital-value {
+  color: var(--warning, #986c00);
+}
+
+.vital-card.v-alert .vital-value {
+  color: var(--danger, #a03535);
+}
+
+/* Tijdlijnbalk */
+.timeline-bar {
+  position: relative;
+  height: 28px;
+  background: var(--surface-soft, #f7f9fb);
+  border-radius: var(--radius-sm, 10px);
+  overflow: hidden;
+  border: 1px solid var(--line, #dde3ea);
+}
+
+.tl-segment {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tl-segment.signalering {
+  background: var(--primary-soft, #e4efff);
+  color: var(--primary-dark, #204f8f);
+}
+
+.tl-segment.verwijzing {
+  background: #fff3cd;
+  color: var(--warning, #986c00);
+}
+
+.tl-segment.followup {
+  background: #dff7eb;
+  color: var(--success, #1f7a4c);
+}
+
+.tl-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted, #667085);
+  margin-top: 4px;
+}
+
+/* Risicometer */
+.risk-meter {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-radius: var(--radius-sm, 10px);
+  overflow: hidden;
+  border: 1px solid var(--line, #dde3ea);
+}
+
+.risk-cell {
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: .3;
+}
+
+.risk-cell.active {
+  opacity: 1;
+}
+
+.risk-cell.low {
+  background: #dff7eb;
+  color: var(--success, #1f7a4c);
+}
+
+.risk-cell.medium {
+  background: #fff3cd;
+  color: var(--warning, #986c00);
+}
+
+.risk-cell.high {
+  background: #fae5e5;
+  color: var(--danger, #a03535);
+}
+
+/* Medicatierooster */
+.med-grid {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.4fr) repeat(4, 1fr);
+  border: 1px solid var(--line, #dde3ea);
+  border-radius: var(--radius-sm, 10px);
+  overflow: hidden;
+  background: var(--surface, #ffffff);
+}
+
+.med-head,
+.med-name,
+.med-cell {
+  padding: 10px;
+  border-bottom: 1px solid var(--line, #dde3ea);
+  border-right: 1px solid var(--line, #dde3ea);
+  font-size: 12px;
+}
+
+.med-head {
+  background: var(--surface-soft, #f7f9fb);
+  color: var(--muted, #667085);
+  font-weight: 800;
+  text-align: center;
+}
+
+.med-name {
+  font-weight: 700;
+}
+
+.med-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.med-grid > *:nth-child(5n) {
+  border-right: none;
+}
+
+.med-grid > *:nth-last-child(-n+5) {
+  border-bottom: none;
+}
+
+.med-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 2px solid var(--line, #dde3ea);
+}
+
+.med-dot.given {
+  background: var(--success, #1f7a4c);
+  border-color: var(--success, #1f7a4c);
+}
+
+.med-dot.planned {
+  background: transparent;
+  border-color: var(--muted, #667085);
+}
+
+.med-dot.missed {
+  background: var(--danger, #a03535);
+  border-color: var(--danger, #a03535);
+}
+
+.med-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted, #667085);
+}
+
+.med-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
