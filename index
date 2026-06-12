@@ -1,3 +1,17 @@
+<!-- === Visuele componenten dashboard === -->
+
+<div class="card">
+  <div class="card-header">
+    <h3>Patiëntstatus</h3>
+  </div>
+
+  <div class="pill-row">
+    <span class="pill ok"><span class="pill-dot"></span>Stabiel</span>
+    <span class="pill warn"><span class="pill-dot"></span>Verhoogde bloeddruk</span>
+    <span class="pill alert"><span class="pill-dot"></span>Allergie bekend</span>
+  </div>
+</div>
+
 <div class="card">
   <div class="card-header">
     <h3>Vitale waarden</h3>
@@ -21,5 +35,88 @@
       <div class="vital-value">78<span class="vital-unit">bpm</span></div>
       <div class="vital-range">normaal</div>
     </div>
+
+    <div class="vital-card v-neutral">
+      <div class="vital-label">CCQ-score</div>
+      <div class="vital-value">2.1</div>
+      <div class="vital-range">laatste meting</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Zorgverloop</h3>
+  </div>
+
+  <div class="timeline-bar">
+    <div class="tl-segment signalering" style="left:0%;width:35%;">Signalering</div>
+    <div class="tl-segment verwijzing" style="left:35%;width:20%;">Verwijzing</div>
+    <div class="tl-segment followup" style="left:55%;width:45%;">Follow-up</div>
+  </div>
+
+  <div class="tl-labels">
+    <span>3 jun</span>
+    <span>6 jun</span>
+    <span>8 jun</span>
+    <span>12 jun</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Risico-inschatting</h3>
+  </div>
+
+  <div class="risk-meter">
+    <div class="risk-cell low">
+      <span>🟢</span> Laag risico
+    </div>
+
+    <div class="risk-cell medium active">
+      <span>🟡</span> Matig risico
+    </div>
+
+    <div class="risk-cell high">
+      <span>🔴</span> Hoog risico
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Medicatierooster</h3>
+  </div>
+
+  <div class="med-grid">
+    <div class="med-head">Medicatie</div>
+    <div class="med-head">08:00</div>
+    <div class="med-head">12:00</div>
+    <div class="med-head">18:00</div>
+    <div class="med-head">22:00</div>
+
+    <div class="med-name">Salbutamol</div>
+    <div class="med-cell"><span class="med-dot given"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+
+    <div class="med-name">Tiotropium</div>
+    <div class="med-cell"><span class="med-dot given"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+
+    <div class="med-name">Prednison</div>
+    <div class="med-cell"><span class="med-dot missed"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+    <div class="med-cell"><span class="med-dot planned"></span></div>
+  </div>
+
+  <div class="med-legend">
+    <span class="med-legend-item"><span class="med-dot given"></span>Gegeven</span>
+    <span class="med-legend-item"><span class="med-dot planned"></span>Gepland</span>
+    <span class="med-legend-item"><span class="med-dot missed"></span>Gemist</span>
   </div>
 </div>
